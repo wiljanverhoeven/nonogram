@@ -57,19 +57,42 @@ namespace nonogram
         }
 
         private void GridButton_MouseDown(object sender, MouseEventArgs e)
-            {
-                Button btn = (Button)sender;
+        {
+            Button btn = (Button)sender;
 
-                if (e.Button == MouseButtons.Left)
-                {
-                    // toggle black fill
-                    btn.BackColor = btn.BackColor == Color.Black ? Color.White : Color.Black;
-                    btn.Text = "";
-                }
+            if (e.Button == MouseButtons.Left)
+            {
+                // toggle black fill
+                btn.BackColor = btn.BackColor == Color.Black ? Color.White : Color.Black;
+                btn.Text = "";
             }
 
+            // Check if the puzzle is solved
+            if (CheckWin())
+            {
+                MessageBox.Show("Congratulations! You solved the puzzle!");
+            }
+        }
 
-       
+        private bool CheckWin()
+        {
+            int rows = solution.GetLength(0);
+            int cols = solution.GetLength(1);
+
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    // 1 in solution = black, 0 = white
+                    bool isBlack = gridButtons[r, c].BackColor == Color.Black;
+                    if ((solution[r, c] == 1 && !isBlack) || (solution[r, c] == 0 && isBlack))
+                    {
+                        return false; // mismatch found
+                    }
+                }
+            }
+            return true; // all match
+        }
 
 
         private void button1_Click(object sender, EventArgs e)

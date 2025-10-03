@@ -46,11 +46,11 @@
             panel11 = new Panel();
             panel12 = new Panel();
             panel13 = new Panel();
-            button1 = new Button();
-            button2 = new Button();
-            button3 = new Button();
-            label1 = new Label();
             label2 = new Label();
+            label1 = new Label();
+            button3 = new Button();
+            button2 = new Button();
+            button1 = new Button();
             panel13.SuspendLayout();
             SuspendLayout();
             // 
@@ -198,35 +198,15 @@
             panel13.Size = new Size(158, 340);
             panel13.TabIndex = 13;
             // 
-            // button1
+            // label2
             // 
-            button1.Location = new Point(32, 106);
-            button1.Name = "button1";
-            button1.Size = new Size(92, 30);
-            button1.TabIndex = 0;
-            button1.Text = "Reset";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
-            // 
-            // button2
-            // 
-            button2.Location = new Point(32, 142);
-            button2.Name = "button2";
-            button2.Size = new Size(92, 30);
-            button2.TabIndex = 1;
-            button2.Text = "Opslaan";
-            button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click;
-            // 
-            // button3
-            // 
-            button3.Location = new Point(32, 178);
-            button3.Name = "button3";
-            button3.Size = new Size(92, 30);
-            button3.TabIndex = 2;
-            button3.Text = "Pauzeer";
-            button3.UseVisualStyleBackColor = true;
-            button3.Click += button3_Click;
+            label2.AutoSize = true;
+            label2.Location = new Point(59, 81);
+            label2.Name = "label2";
+            label2.Size = new Size(35, 15);
+            label2.TabIndex = 4;
+            label2.Text = "timer";
+            label2.Click += label2_Click;
             // 
             // label1
             // 
@@ -239,21 +219,41 @@
             label1.Text = "puzzelname";
             label1.Click += label1_Click_1;
             // 
-            // label2
+            // button3
             // 
-            label2.AutoSize = true;
-            label2.Location = new Point(59, 81);
-            label2.Name = "label2";
-            label2.Size = new Size(35, 15);
-            label2.TabIndex = 4;
-            label2.Text = "timer";
-            label2.Click += label2_Click;
+            button3.Location = new Point(32, 178);
+            button3.Name = "button3";
+            button3.Size = new Size(92, 30);
+            button3.TabIndex = 2;
+            button3.Text = "Pauzeer";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
+            // 
+            // button2
+            // 
+            button2.Location = new Point(32, 142);
+            button2.Name = "button2";
+            button2.Size = new Size(92, 30);
+            button2.TabIndex = 1;
+            button2.Text = "Opslaan";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
+            // 
+            // button1
+            // 
+            button1.Location = new Point(32, 106);
+            button1.Name = "button1";
+            button1.Size = new Size(92, 30);
+            button1.TabIndex = 0;
+            button1.Text = "Reset";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(907, 531);
+            ClientSize = new Size(842, 531);
             Controls.Add(panel13);
             Controls.Add(panel12);
             Controls.Add(panel11);
