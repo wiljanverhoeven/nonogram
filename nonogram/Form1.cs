@@ -108,11 +108,26 @@ namespace nonogram
             return true;
         }
 
-
-
         private void button1_Click(object sender, EventArgs e)
-        {
+            {
+                int rows = gridButtons.GetLength(0);
+                int cols = gridButtons.GetLength(1);
 
+                // Reset all buttons to white and clear text
+                for (int r = 0; r < rows; r++)
+                {
+                    for (int c = 0; c < cols; c++)
+                    {
+                        gridButtons[r, c].BackColor = Color.White;
+                        gridButtons[r, c].Text = "";
+                    }
+                }
+
+                // Reset and restart the timer
+                elapsedSeconds = 0;
+                label2.Text = "Time: 00:00";
+                timer1.Stop();    // Stop in case it was paused
+                timer1.Start();   // Start the timer fresh
         }
 
         private void label1_Click_1(object sender, EventArgs e)
@@ -127,7 +142,18 @@ namespace nonogram
 
         private void button3_Click(object sender, EventArgs e)
         {
-
+            if (timer1.Enabled)
+            {
+                // Timer is running ? pause it
+                timer1.Stop();
+                button3.Text = "Resume";
+            }
+            else
+            {
+                // Timer is stopped ? resume it
+                timer1.Start();
+                button3.Text = "Pause";
+            }
         }
 
         private void label2_Click(object sender, EventArgs e)

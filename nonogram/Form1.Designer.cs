@@ -46,9 +46,9 @@
             panel11 = new Panel();
             panel12 = new Panel();
             panel13 = new Panel();
+            label2 = new Label();
             label1 = new Label();
             button3 = new Button();
-            button2 = new Button();
             button1 = new Button();
             label3 = new Label();
             label4 = new Label();
@@ -66,7 +66,6 @@
             label16 = new Label();
             label17 = new Label();
             label18 = new Label();
-            label2 = new Label();
             panel13.SuspendLayout();
             SuspendLayout();
             // 
@@ -211,12 +210,20 @@
             panel13.Controls.Add(label2);
             panel13.Controls.Add(label1);
             panel13.Controls.Add(button3);
-            panel13.Controls.Add(button2);
             panel13.Controls.Add(button1);
             panel13.Location = new Point(606, 62);
             panel13.Name = "panel13";
             panel13.Size = new Size(158, 340);
             panel13.TabIndex = 13;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(50, 69);
+            label2.Name = "label2";
+            label2.Size = new Size(38, 15);
+            label2.TabIndex = 4;
+            label2.Text = "label2";
             // 
             // label1
             // 
@@ -231,23 +238,13 @@
             // 
             // button3
             // 
-            button3.Location = new Point(32, 178);
+            button3.Location = new Point(32, 142);
             button3.Name = "button3";
             button3.Size = new Size(92, 30);
             button3.TabIndex = 2;
             button3.Text = "Pauzeer";
             button3.UseVisualStyleBackColor = true;
             button3.Click += button3_Click;
-            // 
-            // button2
-            // 
-            button2.Location = new Point(32, 142);
-            button2.Name = "button2";
-            button2.Size = new Size(92, 30);
-            button2.TabIndex = 1;
-            button2.Text = "Opslaan";
-            button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click;
             // 
             // button1
             // 
@@ -408,15 +405,6 @@
             label18.TabIndex = 29;
             label18.Text = "2";
             // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(50, 69);
-            label2.Name = "label2";
-            label2.Size = new Size(38, 15);
-            label2.TabIndex = 4;
-            label2.Text = "label2";
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -481,7 +469,6 @@
         private Panel panel12;
         private Panel panel13;
         private Button button3;
-        private Button button2;
         private Button button1;
         private Label label1;
         private Label label3;
