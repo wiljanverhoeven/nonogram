@@ -46,7 +46,6 @@
             panel11 = new Panel();
             panel12 = new Panel();
             panel13 = new Panel();
-            label2 = new Label();
             label1 = new Label();
             button3 = new Button();
             button2 = new Button();
@@ -67,8 +66,13 @@
             label16 = new Label();
             label17 = new Label();
             label18 = new Label();
+            label2 = new Label();
             panel13.SuspendLayout();
             SuspendLayout();
+            // 
+            // timer1
+            // 
+            timer1.Tick += timer1_Tick;
             // 
             // tableLayoutPanel1
             // 
@@ -213,16 +217,6 @@
             panel13.Name = "panel13";
             panel13.Size = new Size(158, 340);
             panel13.TabIndex = 13;
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(59, 81);
-            label2.Name = "label2";
-            label2.Size = new Size(35, 15);
-            label2.TabIndex = 4;
-            label2.Text = "timer";
-            label2.Click += label2_Click;
             // 
             // label1
             // 
@@ -414,11 +408,20 @@
             label18.TabIndex = 29;
             label18.Text = "2";
             // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(50, 69);
+            label2.Name = "label2";
+            label2.Size = new Size(38, 15);
+            label2.TabIndex = 4;
+            label2.Text = "label2";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(842, 531);
+            ClientSize = new Size(838, 499);
             Controls.Add(label18);
             Controls.Add(label17);
             Controls.Add(label16);
@@ -481,7 +484,6 @@
         private Button button2;
         private Button button1;
         private Label label1;
-        private Label label2;
         private Label label3;
         private Label label4;
         private Label label5;
@@ -498,6 +500,7 @@
         private Label label16;
         private Label label17;
         private Label label18;
+        private Label label2;
     }
 
 }

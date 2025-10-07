@@ -19,6 +19,7 @@ namespace nonogram
 
         private Button[,] gridButtons;
         private int[,] solution;
+        private int elapsedSeconds = 0;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -46,7 +47,7 @@ namespace nonogram
                 {
                     Button btn = new Button();
                     btn.Dock = DockStyle.Fill;
-                    btn.Tag = (r, c); // store position
+                    btn.Tag = (r, c);
                     btn.BackColor = Color.White;
                     btn.MouseDown += GridButton_MouseDown;
 
@@ -54,6 +55,20 @@ namespace nonogram
                     tableLayoutPanel1.Controls.Add(btn, c, r);
                 }
             }
+
+            // Timer setup
+            elapsedSeconds = 0;
+            label2.Text = "Time: 00:00";
+            timer1.Interval = 1000; // 1 second
+            timer1.Tick += Timer1_Tick;
+            timer1.Start();
+        }
+
+        private void Timer1_Tick(object sender, EventArgs e)
+        {
+            elapsedSeconds++;
+            TimeSpan time = TimeSpan.FromSeconds(elapsedSeconds);
+            label2.Text = $"Time: {time:mm\\:ss}";
         }
 
         private void GridButton_MouseDown(object sender, MouseEventArgs e)
@@ -67,7 +82,7 @@ namespace nonogram
 
                 if (CheckWin())
                 {
-                    MessageBox.Show("Congratulations! You solved the puzzle!");
+                    MessageBox.Show($"Congratulations! You solved the puzzle in {label2.Text.Replace("Time: ", "")}!");
                 }
             }
         }
@@ -84,39 +99,14 @@ namespace nonogram
                 {
                     bool isFilled = gridButtons[r, c].BackColor == Color.Black;
                     if (isFilled != (solution[r, c] == 1))
-                        return false; // mismatch found
+                        return false;
                 }
             }
-            return true; // all match
+
+            // Puzzle is solved
+            timer1.Stop(); // ?? stop the timer
+            return true;
         }
-
-        private List<int> GetLineNumbers(int[] line)
-        {
-            List<int> numbers = new List<int>();
-            int count = 0;
-
-            foreach (int cell in line)
-            {
-                if (cell == 1)
-                {
-                    count++;
-                }
-                else
-                {
-                    if (count > 0)
-                    {
-                        numbers.Add(count);
-                        count = 0;
-                    }
-                }
-            }
-            if (count > 0) numbers.Add(count);
-
-            if (numbers.Count == 0) numbers.Add(0); // no filled cells
-            return numbers;
-        }
-
-
 
 
 
@@ -171,6 +161,16 @@ namespace nonogram
         }
 
         private void label17_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
 
         }
