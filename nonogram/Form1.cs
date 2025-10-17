@@ -5,6 +5,8 @@
         public Form1()
         {
             InitializeComponent();
+
+
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -31,8 +33,8 @@
 
         private void StartGame()
         {
-            int rows = 5;
-            int cols = 5;
+            int rows = (int)numericGridSize.Value;
+            int cols = (int)numericGridSize.Value;
 
             solution = GenerateRandomSolution(rows, cols);
 
@@ -44,12 +46,23 @@
             tableLayoutPanel1.RowCount = rows;
             tableLayoutPanel1.ColumnCount = cols;
 
+            tableLayoutPanel1.ColumnStyles.Clear();
+            tableLayoutPanel1.RowStyles.Clear();
+
+            for (int i = 0; i < cols; i++)
+                tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / cols));
+
+            for (int i = 0; i < rows; i++)
+                tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / rows));
+
             for (int r = 0; r < rows; r++)
             {
                 for (int c = 0; c < cols; c++)
                 {
                     Button btn = new Button();
-                    btn.Dock = DockStyle.Fill;
+                    panelRowClues.Dock = DockStyle.Fill;
+                    panelColClues.Dock = DockStyle.Fill;
+                    tableLayoutPanel1.Dock = DockStyle.Fill;
                     btn.Tag = (r, c);
                     btn.BackColor = Color.White;
                     btn.MouseDown += GridButton_MouseDown;
@@ -60,24 +73,39 @@
                 }
             }
 
-            tableLayoutPanel1.ResumeLayout();
+            panelRowClues.Controls.Clear();
+            panelColClues.Controls.Clear();
 
-            // Update row clues (labels 3 to 7, from bottom to top)
-            // So label3 is bottom row, label7 is top row
+            // Row clues (left side)
             for (int r = 0; r < rows; r++)
             {
                 string clue = GenerateClueForLine(GetRow(solution, r));
-                // labels 3-7 bottom to top => label3 for row 4, label4 for row 3, ..., label7 for row 0
-                int labelIndex = 7 - r;
-                SetRowLabel(labelIndex, clue);
+                Label lbl = new Label
+                {
+                    Text = clue,
+                    AutoSize = true,
+                    Location = new Point(0, r * (tableLayoutPanel1.Height / rows))
+                };
+                panelRowClues.Controls.Add(lbl);
             }
 
-            // Update column clues (labels 8 to 12, left to right)
+            // Column clues (top)
             for (int c = 0; c < cols; c++)
             {
                 string clue = GenerateClueForLine(GetColumn(solution, c));
-                SetColumnLabel(8 + c, clue);
+                Label lbl = new Label
+                {
+                    Text = clue,
+                    AutoSize = true,
+                    Location = new Point(c * (tableLayoutPanel1.Width / cols), 0)
+                };
+                panelColClues.Controls.Add(lbl);
             }
+
+            tableLayoutPanel1.ResumeLayout();
+
+
+           
 
             elapsedSeconds = 0;
             label2.Text = "Time: 00:00";
@@ -86,6 +114,21 @@
 
             button1.Enabled = true; // Reset
             button3.Enabled = true; // Pause
+
+            // After tableLayoutPanel1.ResumeLayout();
+            int gridSize = (int)numericGridSize.Value;
+            int cellSize = Math.Min(400 / gridSize, 80); // adjust if needed for your layout
+            int totalGridSize = cellSize * gridSize;
+
+            // Resize grid dynamically
+            tableLayoutPanel1.Size = new Size(totalGridSize, totalGridSize);
+
+            // Reposition and resize clue panels accordingly
+            panelRowClues.Size = new Size(60, totalGridSize);
+            panelRowClues.Location = new Point(tableLayoutPanel1.Left - 65, tableLayoutPanel1.Top);
+
+            panelColClues.Size = new Size(totalGridSize, 60);
+            panelColClues.Location = new Point(tableLayoutPanel1.Left, tableLayoutPanel1.Top - 65);
         }
 
         private int[,] GenerateRandomSolution(int rows, int cols, double fillProbability = 0.3)
@@ -198,31 +241,7 @@
             return string.Join("-", clues);
         }
 
-        // Set the row clue label based on label index (3 to 7)
-        private void SetRowLabel(int labelNumber, string text)
-        {
-            switch (labelNumber)
-            {
-                case 3: label3.Text = text; break;
-                case 4: label4.Text = text; break;
-                case 5: label5.Text = text; break;
-                case 6: label6.Text = text; break;
-                case 7: label7.Text = text; break;
-            }
-        }
-
-        // Set the column clue label based on label index (8 to 12)
-        private void SetColumnLabel(int labelNumber, string text)
-        {
-            switch (labelNumber)
-            {
-                case 8: label8.Text = text; break;
-                case 9: label9.Text = text; break;
-                case 10: label10.Text = text; break;
-                case 11: label11.Text = text; break;
-                case 12: label12.Text = text; break;
-            }
-        }
+  
 
         private void timer1_Tick(object sender, EventArgs e)
         {
