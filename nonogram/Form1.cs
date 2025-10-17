@@ -131,62 +131,55 @@
             panelColClues.Location = new Point(tableLayoutPanel1.Left, tableLayoutPanel1.Top - 65);
         }
 
-        private int[,] GenerateRandomSolution(int rows, int cols, double fillProbability = 0.3)
+        private int[,] GenerateRandomSolution(int rows, int cols)
+        {
+            Random rand = new Random();
+            int[,] grid = new int[rows, cols];
+
+            // Maximum possible run length increases with grid size
+            int maxRunLength = Math.Max(2, rows / 3); // e.g. 3 for 9x9, 6 for 18x18, etc.
+
+            for (int r = 0; r < rows; r++)
             {
-                Random rand = new Random();
-                int[,] grid = new int[rows, cols];
-
-                // Step 1: Random fill based on fillProbability
-                for (int r = 0; r < rows; r++)
+                int filled = 0;
+                while (filled < cols * 0.5) // roughly half the row filled
                 {
-                    for (int c = 0; c < cols; c++)
-                    {
-                        grid[r, c] = (rand.NextDouble() < fillProbability) ? 1 : 0;
-                    }
-                }
+                    // Pick a random run length between 1 and maxRunLength
+                    int runLength = rand.Next(1, maxRunLength + 1);
 
-                // Step 2: Ensure each row has at least one '1'
-                for (int r = 0; r < rows; r++)
-                {
-                    bool hasOne = false;
-                    for (int c = 0; c < cols; c++)
-                    {
-                        if (grid[r, c] == 1)
-                        {
-                            hasOne = true;
-                            break;
-                        }
-                    }
-                    if (!hasOne)
-                    {
-                        // Pick random column and set to 1
-                        int colIndex = rand.Next(cols);
-                        grid[r, colIndex] = 1;
-                    }
-                }
+                    // Pick a starting column (make sure it fits)
+                    int start = rand.Next(0, cols - runLength);
 
-                // Step 3: Ensure each column has at least one '1'
-                for (int c = 0; c < cols; c++)
-                {
-                    bool hasOne = false;
-                    for (int r = 0; r < rows; r++)
-                    {
-                        if (grid[r, c] == 1)
-                        {
-                            hasOne = true;
-                            break;
-                        }
-                    }
-                    if (!hasOne)
-                    {
-                        // Pick random row and set to 1
-                        int rowIndex = rand.Next(rows);
-                        grid[rowIndex, c] = 1;
-                    }
-                }
+                    // Fill that run
+                    for (int c = start; c < start + runLength; c++)
+                        grid[r, c] = 1;
 
-                return grid;
+                    // Skip a random gap before starting next run
+                    filled += runLength + rand.Next(1, 3);
+                }
             }
+
+            // Make sure each column has at least one 1
+            for (int c = 0; c < cols; c++)
+            {
+                bool hasOne = false;
+                for (int r = 0; r < rows; r++)
+                {
+                    if (grid[r, c] == 1)
+                    {
+                        hasOne = true;
+                        break;
+                    }
+                }
+                if (!hasOne)
+                {
+                    int rowIndex = rand.Next(rows);
+                    grid[rowIndex, c] = 1;
+                }
+            }
+
+            return grid;
+        }
 
 
         // Extract a row as an int array

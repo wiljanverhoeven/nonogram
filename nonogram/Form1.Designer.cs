@@ -30,6 +30,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+
+            this.WindowState = FormWindowState.Maximized;
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             components = new System.ComponentModel.Container();
             timer1 = new System.Windows.Forms.Timer(components);
             tableLayoutPanel1 = new TableLayoutPanel();
