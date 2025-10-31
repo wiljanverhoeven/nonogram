@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+using System.Text.Json;
 
 namespace nonogram
 {
     public partial class Form1 : Form
     {
-        private NonogramLogic logic;         // Instance of your logic class
-        private Button[,] gridButtons;       // Button grid for the puzzle
-        private int[,] solution;             // Holds the puzzle solution
-        private int elapsedSeconds = 0;      // Timer counter
+        private NonogramLogic logic;
+        private Button[,] gridButtons;
+        private int[,] solution;
+        private int elapsedSeconds = 0;
+        private int moveCount = 0;
+        private int userId = 1;
+        private int currentPuzzleId = -1;
+        private SpeedrunManager speedrun;
 
         public Form1()
         {
@@ -18,7 +24,14 @@ namespace nonogram
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            logic = new NonogramLogic();     // Initialize logic when form loads
+            logic = new NonogramLogic();
+
+            // Populate the ComboBox
+            combomode.Items.Clear();
+            combomode.Items.Add("Random");
+            combomode.Items.Add("Pre-generated");
+            combomode.Items.Add("Speedrun");
+            combomode.SelectedIndex = 0; // default selection
 
             button1.Enabled = false; // Reset
             button3.Enabled = false; // Pause
@@ -26,61 +39,28 @@ namespace nonogram
             tableLayoutPanel1.Enabled = false;
         }
 
+
         private void StartGame()
         {
             int rows = 5;
             int cols = 5;
-
-            // Use the logic class for generation
             solution = logic.GenerateRandomSolution(rows, cols);
+            BuildGrid(rows, cols);
 
-            gridButtons = new Button[rows, cols];
-
-            tableLayoutPanel1.SuspendLayout();
-            tableLayoutPanel1.Controls.Clear();
-            tableLayoutPanel1.RowCount = rows;
-            tableLayoutPanel1.ColumnCount = cols;
-
-            for (int r = 0; r < rows; r++)
-            {
-                for (int c = 0; c < cols; c++)
-                {
-                    Button btn = new Button();
-                    btn.Dock = DockStyle.Fill;
-                    btn.Tag = (r, c);
-                    btn.BackColor = Color.White;
-                    btn.MouseDown += GridButton_MouseDown;
-                    btn.Enabled = true;
-
-                    gridButtons[r, c] = btn;
-                    tableLayoutPanel1.Controls.Add(btn, c, r);
-                }
-            }
-
-            tableLayoutPanel1.ResumeLayout();
-
-            // Row clues (labels 3 to 7, bottom to top)
             for (int r = 0; r < rows; r++)
             {
                 string clue = logic.GenerateClueForLine(logic.GetRow(solution, r));
-                int labelIndex = 7 - r;
-                SetRowLabel(labelIndex, clue);
+                SetRowLabel(7 - r, clue);
             }
 
-            // Column clues (labels 8 to 12, left to right)
             for (int c = 0; c < cols; c++)
             {
                 string clue = logic.GenerateClueForLine(logic.GetColumn(solution, c));
                 SetColumnLabel(8 + c, clue);
             }
 
-            elapsedSeconds = 0;
-            label2.Text = "Time: 00:00";
-            timer1.Interval = 1000;
-            timer1.Start();
-
-            button1.Enabled = true; // Reset
-            button3.Enabled = true; // Pause
+            moveCount = 0;
+            StartTimer();
         }
 
         private void SetRowLabel(int labelNumber, string text)
@@ -117,6 +97,7 @@ namespace nonogram
         private void GridButton_MouseDown(object sender, MouseEventArgs e)
         {
             Button btn = (Button)sender;
+            moveCount++;
 
             if (e.Button == MouseButtons.Left)
             {
@@ -125,7 +106,7 @@ namespace nonogram
 
                 if (CheckWin())
                 {
-                    MessageBox.Show($"Congratulations! You solved the puzzle in {label2.Text.Replace("Time: ", "")}!");
+                    // handled inside CheckWin
                 }
             }
         }
@@ -146,6 +127,22 @@ namespace nonogram
             }
 
             timer1.Stop();
+            string selectedMode = combomode.SelectedItem?.ToString() ?? "Random";
+
+            if (selectedMode == "Pre-generated")
+            {
+                SavePreGeneratedScore(userId, currentPuzzleId, elapsedSeconds, moveCount);
+                MessageBox.Show($"Congratulations! You solved the puzzle in {label2.Text.Replace("Time: ", "")}!");
+            }
+            else if (selectedMode == "Speedrun")
+            {
+                OnSpeedrunPuzzleCompleted();
+            }
+            else
+            {
+                MessageBox.Show($"Congratulations! You solved the puzzle in {label2.Text.Replace("Time: ", "")}!");
+            }
+
             return true;
         }
 
@@ -177,10 +174,31 @@ namespace nonogram
 
         private void button2_Click(object sender, EventArgs e)
         {
-            StartGame();
+            if (combomode.SelectedItem == null)
+            {
+                MessageBox.Show("Please select a mode first!");
+                return;
+            }
+
+            string selectedMode = combomode.SelectedItem.ToString();
+
+            switch (selectedMode)
+            {
+                case "Random":
+                    StartGame();
+                    break;
+                case "Pre-generated":
+                    StartPreGeneratedGame();
+                    break;
+                case "Speedrun":
+                    StartSpeedrunMode();
+                    break;
+            }
+
             tableLayoutPanel1.Enabled = true;
             button2.Enabled = false;
         }
+
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -196,6 +214,146 @@ namespace nonogram
             }
         }
 
-        // You can leave the other empty label click methods as-is
+        private void StartPreGeneratedGame()
+        {
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                string query = "SELECT * FROM pre_generated_puzzles ORDER BY RAND() LIMIT 1";
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        currentPuzzleId = reader.GetInt32("id"); // ✅ store puzzle ID
+
+                        string name = reader.GetString("name");
+                        int gridSize = reader.GetInt32("grid_size");
+                        string solutionJson = reader.GetString("solution_data");
+                        int[,] solutionArray = JsonSerializer.Deserialize<int[,]>(solutionJson);
+
+                        solution = solutionArray;
+                        label1.Text = name;
+
+                        BuildGrid(gridSize, gridSize);
+
+                        string[] rowHints = JsonSerializer.Deserialize<string[]>(reader.GetString("row_hints"));
+                        string[] columnHints = JsonSerializer.Deserialize<string[]>(reader.GetString("column_hints"));
+
+                        for (int i = 0; i < rowHints.Length; i++)
+                            SetRowLabel(7 - i, rowHints[i]);
+
+                        for (int i = 0; i < columnHints.Length; i++)
+                            SetColumnLabel(8 + i, columnHints[i]);
+
+                        moveCount = 0;
+                        StartTimer();
+                    }
+                }
+            }
+        }
+
+
+        private void BuildGrid(int rows, int cols)
+        {
+            gridButtons = new Button[rows, cols];
+            tableLayoutPanel1.SuspendLayout();
+            tableLayoutPanel1.Controls.Clear();
+
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    Button btn = new Button();
+                    btn.Dock = DockStyle.Fill;
+                    btn.Tag = (r, c);
+                    btn.BackColor = Color.White;
+                    btn.MouseDown += GridButton_MouseDown;
+                    gridButtons[r, c] = btn;
+                    tableLayoutPanel1.Controls.Add(btn, c, r);
+                }
+            }
+
+            tableLayoutPanel1.ResumeLayout();
+        }
+
+        private void StartTimer()
+        {
+            elapsedSeconds = 0;
+            label2.Text = "Time: 00:00";
+            timer1.Interval = 1000;
+            timer1.Start();
+
+            button1.Enabled = true;
+            button3.Enabled = true;
+        }
+
+        private void SavePreGeneratedScore(int userId, int puzzleId, int time, int moves)
+        {
+            using (var conn = DatabaseHelper.GetConnection())
+            {
+                string query = "INSERT INTO leaderboard_pre_generated (userId, puzzleId, completion_time, moves_count) VALUES (@u, @p, @t, @m) ON DUPLICATE KEY UPDATE completion_time=@t, moves_count=@m";
+                var cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@u", userId);
+                cmd.Parameters.AddWithValue("@p", puzzleId);
+                cmd.Parameters.AddWithValue("@t", time);
+                cmd.Parameters.AddWithValue("@m", moves);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        // --- SPEEDRUN MODE LOGIC BELOW ---
+
+        private void StartSpeedrunMode()
+        {
+            speedrun = new SpeedrunManager();
+            speedrun.LoadSpeedrunPuzzles(3); // Load 3 random puzzles
+            LoadSpeedrunPuzzle();
+        }
+
+        private void LoadSpeedrunPuzzle()
+        {
+            var (puzzleId, grid) = speedrun.GetCurrentPuzzle();
+            solution = grid;
+            label1.Text = $"Speedrun Puzzle {speedrun.CurrentIndex + 1}";
+
+            BuildGrid(grid.GetLength(0), grid.GetLength(1));
+
+            for (int r = 0; r < grid.GetLength(0); r++)
+                SetRowLabel(7 - r, logic.GenerateClueForLine(logic.GetRow(grid, r)));
+
+            for (int c = 0; c < grid.GetLength(1); c++)
+                SetColumnLabel(8 + c, logic.GenerateClueForLine(logic.GetColumn(grid, c)));
+
+            moveCount = 0;
+            StartTimer();
+        }
+
+        private void OnSpeedrunPuzzleCompleted()
+        {
+            speedrun.AddStats(elapsedSeconds, moveCount);
+            timer1.Stop();
+
+            if (speedrun.NextPuzzle())
+            {
+                MessageBox.Show("Puzzle completed! Loading next...");
+                LoadSpeedrunPuzzle();
+            }
+            else
+            {
+                speedrun.SaveResults(userId);
+                MessageBox.Show($"Speedrun complete!\nTotal time: {speedrun.TotalTime} seconds\nTotal moves: {speedrun.TotalMoves}");
+                ResetGameUI();
+            }
+        }
+
+        private void ResetGameUI()
+        {
+            tableLayoutPanel1.Enabled = false;
+            button2.Enabled = true;
+            button1.Enabled = false;
+            button3.Enabled = false;
+            label1.Text = "Select Mode";
+            label2.Text = "Time: 00:00";
+        }
     }
 }
