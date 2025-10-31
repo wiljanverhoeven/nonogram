@@ -1,69 +1,82 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using MySql.Data.MySqlClient;
 
 namespace nonogram
 {
     public class SpeedrunManager
     {
-        public List<(int puzzleId, int[,] grid)> Puzzles { get; private set; } = new();
         public int CurrentIndex { get; private set; } = 0;
-        public int TotalTime { get; private set; } = 0;
-        public int TotalMoves { get; private set; } = 0;
-        public bool IsComplete => CurrentIndex >= Puzzles.Count;
+        private List<int[,]> puzzles = new();
+        private List<(int time, int moves)> stats = new();
 
-        public void LoadSpeedrunPuzzles(int count = 3)
+        public void LoadSpeedrunPuzzles(int count)
         {
-            Puzzles.Clear();
-            using (var conn = DatabaseHelper.GetConnection())
-            {
-                string query = $"SELECT puzzleId, solution_data FROM pre_generated_puzzles ORDER BY RAND() LIMIT {count}";
-                using (var cmd = new MySqlCommand(query, conn))
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int id = reader.GetInt32("puzzleId");
-                        int[,] grid = JsonSerializer.Deserialize<int[,]>(reader.GetString("solution_data"));
-                        Puzzles.Add((id, grid));
-                    }
-                }
-            }
+            Random rand = new Random();
+            NonogramLogic logic = new();
+            for (int i = 0; i < count; i++)
+                puzzles.Add(logic.GenerateRandomSolution(5, 5));
         }
 
-        public (int puzzleId, int[,] grid) GetCurrentPuzzle() => Puzzles[CurrentIndex];
-
-        public bool NextPuzzle()
+        public (int id, int[,] grid) GetCurrentPuzzle()
         {
-            CurrentIndex++;
-            return !IsComplete;
+            return (CurrentIndex, puzzles[CurrentIndex]);
         }
 
         public void AddStats(int time, int moves)
         {
-            TotalTime += time;
-            TotalMoves += moves;
+            stats.Add((time, moves));
+        }
+
+        public bool NextPuzzle()
+        {
+            if (CurrentIndex + 1 < puzzles.Count)
+            {
+                CurrentIndex++;
+                return true;
+            }
+            return false;
         }
 
         public void SaveResults(int userId)
         {
-            if (Puzzles.Count == 0) return;
+            using var conn = DatabaseHelper.GetConnection();
 
-            using (var conn = DatabaseHelper.GetConnection())
+            for (int i = 0; i < stats.Count; i++)
             {
-                string query = @"INSERT INTO leaderboard_speedrun 
-                    (userId, total_time, average_time_per_puzzle, total_moves_count, puzzles_seeds, grid_size)
-                    VALUES (@u, @t, @avg, @m, @p, 5)";
-                var cmd = new MySqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@u", userId);
-                cmd.Parameters.AddWithValue("@t", TotalTime);
-                cmd.Parameters.AddWithValue("@avg", TotalTime / (double)Puzzles.Count);
-                cmd.Parameters.AddWithValue("@m", TotalMoves);
-                cmd.Parameters.AddWithValue("@p", JsonSerializer.Serialize(Puzzles.Select(p => p.puzzleId)));
+                var cmd = new MySqlCommand(
+                    "INSERT INTO speedrun_results (user_id, puzzle_index, time_taken, moves) VALUES (@uid, @idx, @time, @moves)",
+                    conn);
+                cmd.Parameters.AddWithValue("@uid", userId);
+                cmd.Parameters.AddWithValue("@idx", i);
+                cmd.Parameters.AddWithValue("@time", stats[i].time);
+                cmd.Parameters.AddWithValue("@moves", stats[i].moves);
                 cmd.ExecuteNonQuery();
             }
         }
+
+        // Add these properties:
+        public int TotalMoves
+        {
+            get
+            {
+                int total = 0;
+                foreach (var s in stats)
+                    total += s.moves;
+                return total;
+            }
+        }
+
+        public int TotalTime
+        {
+            get
+            {
+                int total = 0;
+                foreach (var s in stats)
+                    total += s.time;
+                return total;
+            }
+        }
     }
+
 }

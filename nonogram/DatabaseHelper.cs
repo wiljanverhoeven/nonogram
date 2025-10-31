@@ -1,6 +1,4 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Data;
 
 namespace nonogram
 {
@@ -14,7 +12,5 @@ namespace nonogram
             conn.Open();
             return conn;
         }
-
-
     }
 }

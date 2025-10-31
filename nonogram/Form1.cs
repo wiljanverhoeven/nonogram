@@ -26,15 +26,14 @@ namespace nonogram
         {
             logic = new NonogramLogic();
 
-            // Populate the ComboBox
             combomode.Items.Clear();
             combomode.Items.Add("Random");
             combomode.Items.Add("Pre-generated");
             combomode.Items.Add("Speedrun");
-            combomode.SelectedIndex = 0; // default selection
+            combomode.SelectedIndex = 0;
 
-            button1.Enabled = false; // Reset
-            button3.Enabled = false; // Pause
+            button1.Enabled = false;
+            button3.Enabled = false;
             label2.Text = "Time: 00:00";
             tableLayoutPanel1.Enabled = false;
         }
@@ -220,30 +219,50 @@ namespace nonogram
             {
                 string query = "SELECT * FROM pre_generated_puzzles ORDER BY RAND() LIMIT 1";
                 MySqlCommand cmd = new MySqlCommand(query, conn);
+
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        currentPuzzleId = reader.GetInt32("id"); // ✅ store puzzle ID
-
+                        currentPuzzleId = reader.GetInt32("puzzleId"); // ✅ correct column name
                         string name = reader.GetString("name");
                         int gridSize = reader.GetInt32("grid_size");
-                        string solutionJson = reader.GetString("solution_data");
-                        int[,] solutionArray = JsonSerializer.Deserialize<int[,]>(solutionJson);
 
-                        solution = solutionArray;
+                        // Deserialize the jagged array and convert it to a 2D array
+                        string solutionJson = reader.GetString("solution_data");
+                        int[][] jagged = JsonSerializer.Deserialize<int[][]>(solutionJson);
+
+                        int rows = jagged.Length;
+                        int cols = jagged[0].Length;
+                        int[,] grid = new int[rows, cols];
+                        for (int r = 0; r < rows; r++)
+                            for (int c = 0; c < cols; c++)
+                                grid[r, c] = jagged[r][c];
+
+                        solution = grid;
                         label1.Text = name;
 
                         BuildGrid(gridSize, gridSize);
 
-                        string[] rowHints = JsonSerializer.Deserialize<string[]>(reader.GetString("row_hints"));
-                        string[] columnHints = JsonSerializer.Deserialize<string[]>(reader.GetString("column_hints"));
+                        // Deserialize row & column hints as string arrays (or int[][] if stored numerically)
+                        string rowHintsJson = reader.GetString("row_hints");
+                        string colHintsJson = reader.GetString("column_hints");
 
-                        for (int i = 0; i < rowHints.Length; i++)
-                            SetRowLabel(7 - i, rowHints[i]);
+                        int[][] rowHints = JsonSerializer.Deserialize<int[][]>(rowHintsJson);
+                        int[][] columnHints = JsonSerializer.Deserialize<int[][]>(colHintsJson);
 
-                        for (int i = 0; i < columnHints.Length; i++)
-                            SetColumnLabel(8 + i, columnHints[i]);
+                        // Convert numeric hints to string form like "1 2" or "5"
+                        for (int i = 0; i < rowHints.Length && i < 5; i++)
+                        {
+                            string hintText = rowHints[i].Length > 0 ? string.Join(" ", rowHints[i]) : "0";
+                            SetRowLabel(7 - i, hintText);
+                        }
+
+                        for (int i = 0; i < columnHints.Length && i < 5; i++)
+                        {
+                            string hintText = columnHints[i].Length > 0 ? string.Join(" ", columnHints[i]) : "0";
+                            SetColumnLabel(8 + i, hintText);
+                        }
 
                         moveCount = 0;
                         StartTimer();
