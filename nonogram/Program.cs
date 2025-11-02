@@ -18,6 +18,7 @@ namespace nonogram
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new LoginForm());
+            UserService.MigrateExistingPasswords();
         }
     }
 }

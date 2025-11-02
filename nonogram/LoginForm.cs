@@ -42,7 +42,12 @@ namespace nonogram
 
         private void btnRegister_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Registration will be added later. Use: admin/admin123");
+            //MessageBox.Show("Registration will be added later. Use: admin/admin123");
+            RegisterForm registerForm = new RegisterForm();
+            registerForm.Show();
+
+            this.Hide();
+            registerForm.FormClosed += (s, args) => this.Show();
         }
     }
 }
