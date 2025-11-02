@@ -18,15 +18,9 @@ namespace nonogram
                 puzzles.Add(logic.GenerateRandomSolution(5, 5));
         }
 
-        public (int id, int[,] grid) GetCurrentPuzzle()
-        {
-            return (CurrentIndex, puzzles[CurrentIndex]);
-        }
+        public (int id, int[,] grid) GetCurrentPuzzle() => (CurrentIndex, puzzles[CurrentIndex]);
 
-        public void AddStats(int time, int moves)
-        {
-            stats.Add((time, moves));
-        }
+        public void AddStats(int time, int moves) => stats.Add((time, moves));
 
         public bool NextPuzzle()
         {
@@ -41,12 +35,12 @@ namespace nonogram
         public void SaveResults(int userId)
         {
             using var conn = DatabaseHelper.GetConnection();
-
             for (int i = 0; i < stats.Count; i++)
             {
                 var cmd = new MySqlCommand(
                     "INSERT INTO speedrun_results (user_id, puzzle_index, time_taken, moves) VALUES (@uid, @idx, @time, @moves)",
-                    conn);
+                    conn
+                );
                 cmd.Parameters.AddWithValue("@uid", userId);
                 cmd.Parameters.AddWithValue("@idx", i);
                 cmd.Parameters.AddWithValue("@time", stats[i].time);
@@ -55,28 +49,14 @@ namespace nonogram
             }
         }
 
-        // Add these properties:
         public int TotalMoves
         {
-            get
-            {
-                int total = 0;
-                foreach (var s in stats)
-                    total += s.moves;
-                return total;
-            }
+            get { int total = 0; foreach (var s in stats) total += s.moves; return total; }
         }
 
         public int TotalTime
         {
-            get
-            {
-                int total = 0;
-                foreach (var s in stats)
-                    total += s.time;
-                return total;
-            }
+            get { int total = 0; foreach (var s in stats) total += s.time; return total; }
         }
     }
-
 }

@@ -25,13 +25,9 @@ namespace nonogram
         private void Form1_Load(object sender, EventArgs e)
         {
             logic = new NonogramLogic();
-
             combomode.Items.Clear();
-            combomode.Items.Add("Random");
-            combomode.Items.Add("Pre-generated");
-            combomode.Items.Add("Speedrun");
+            combomode.Items.AddRange(new string[] { "Random", "Pre-generated", "Speedrun" });
             combomode.SelectedIndex = 0;
-
             button1.Enabled = false;
             button3.Enabled = false;
             label2.Text = "Time: 00:00";
