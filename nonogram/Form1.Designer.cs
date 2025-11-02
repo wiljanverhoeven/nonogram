@@ -51,6 +51,7 @@
             label1 = new Label();
             button3 = new Button();
             button1 = new Button();
+            combomode = new ComboBox();
             label3 = new Label();
             label4 = new Label();
             label5 = new Label();
@@ -88,7 +89,6 @@
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F));
             tableLayoutPanel1.Size = new Size(406, 406);
             tableLayoutPanel1.TabIndex = 0;
-            tableLayoutPanel1.Paint += tableLayoutPanel1_Paint;
             // 
             // panel1
             // 
@@ -207,6 +207,7 @@
             panel13.Controls.Add(label1);
             panel13.Controls.Add(button3);
             panel13.Controls.Add(button1);
+            panel13.Controls.Add(combomode);
             panel13.Location = new Point(606, 62);
             panel13.Name = "panel13";
             panel13.Size = new Size(158, 340);
@@ -240,7 +241,6 @@
             label1.Size = new Size(125, 30);
             label1.TabIndex = 3;
             label1.Text = "puzzelname";
-            label1.Click += label1_Click_1;
             // 
             // button3
             // 
@@ -262,6 +262,15 @@
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
+            // combomode
+            // 
+            combomode.DropDownStyle = ComboBoxStyle.DropDownList;
+            combomode.Items.AddRange(new object[] { "Random", "Pre-generated", "Speedrun" });
+            combomode.Location = new Point(32, 212);
+            combomode.Name = "combomode";
+            combomode.Size = new Size(92, 23);
+            combomode.TabIndex = 0;
+            // 
             // label3
             // 
             label3.AutoSize = true;
@@ -272,12 +281,10 @@
             // 
             // label4
             // 
-            label4.AutoSize = true;
             label4.Location = new Point(92, 359);
             label4.Name = "label4";
-            label4.Size = new Size(0, 15);
-            label4.TabIndex = 15;
-            label4.Click += label4_Click;
+            label4.Size = new Size(12, 23);
+            label4.TabIndex = 24;
             // 
             // label5
             // 
@@ -415,6 +422,7 @@
         private Label label10;
         private Label label11;
         private Label label12;
+        private ComboBox combomode;
     }
 
 }
