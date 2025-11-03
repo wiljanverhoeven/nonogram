@@ -125,12 +125,11 @@ namespace nonogram
 
             if (selectedMode == "Speedrun")
             {
-                // ⚠️ Do NOT stop the timer here
                 OnSpeedrunPuzzleCompleted();
             }
             else
             {
-                // ✅ Only stop timer for normal and pre-generated modes
+                // Only stop timer for normal and pre-generated modes
                 timer1.Stop();
 
                 if (selectedMode == "Pre-generated")
@@ -155,7 +154,7 @@ namespace nonogram
             int rows = gridButtons.GetLength(0);
             int cols = gridButtons.GetLength(1);
 
-            // 🔄 Clear all grid cells
+            // Clear all grid cells
             for (int r = 0; r < rows; r++)
             {
                 for (int c = 0; c < cols; c++)
@@ -169,12 +168,12 @@ namespace nonogram
 
             if (selectedMode == "Speedrun")
             {
-                // ✅ Reset timer to 0 but don't start it
+                // Reset timer to 0 but don't start it
                 elapsedSeconds = 0;
                 label2.Text = "Time: 00:00";
                 timer1.Stop();
 
-                // ✅ Reset progress and reload first puzzle
+                // Reset progress and reload first puzzle
                 speedrun.Reset();
                 LoadSpeedrunPuzzle();
 
@@ -187,7 +186,7 @@ namespace nonogram
             }
 
 
-            // --- Normal / Pre-generated mode behavior ---
+
             elapsedSeconds = 0;
             label2.Text = "Time: 00:00";
             timer1.Stop();
@@ -371,9 +370,9 @@ namespace nonogram
             label2.Text = "Time: 00:00";
             timer1.Interval = 1000;
 
-            button1.Enabled = true;   // ✅ Reset
-            button3.Enabled = true;   // ✅ Pause/Resume
-            button3.Text = "Pause";   // ✅ Make sure button says Pause
+            button1.Enabled = true;   // Reset
+            button3.Enabled = true;   // Pause/Resume
+            button3.Text = "Pause";   // Make sure button says Pause
 
             timer1.Start();            // Start global timer
             LoadSpeedrunPuzzle();
@@ -396,7 +395,6 @@ namespace nonogram
                 SetColumnLabel(8 + c, logic.GenerateClueForLine(logic.GetColumn(grid, c)));
 
             moveCount = 0;
-            // Do NOT reset timer in speedrun mode
         }
 
 
@@ -414,7 +412,7 @@ namespace nonogram
                 MessageBox.Show("Puzzle completed! Loading next...");
                 LoadSpeedrunPuzzle();
 
-                // ✅ Ensure buttons remain usable and grid active
+                // Ensure buttons remain usable and grid active
                 tableLayoutPanel1.Enabled = true;
                 button1.Enabled = true;   // reset
                 button3.Enabled = true;   // pause/resume

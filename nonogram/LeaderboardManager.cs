@@ -26,7 +26,7 @@ namespace nonogram
             public int GridSize { get; set; }
         }
 
-        // ✅ Pre-generated leaderboard
+        // Pre-generated leaderboard
         public List<PreGeneratedLeaderboardEntry> GetPreGeneratedLeaderboard(int top = 10)
         {
             var list = new List<PreGeneratedLeaderboardEntry>();
@@ -56,7 +56,7 @@ namespace nonogram
             return list;
         }
 
-        // ✅ Speedrun leaderboard
+        // Speedrun leaderboard
         public List<SpeedrunLeaderboardEntry> GetSpeedrunLeaderboard(int top = 10)
         {
             var list = new List<SpeedrunLeaderboardEntry>();

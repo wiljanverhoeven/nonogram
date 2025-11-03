@@ -12,7 +12,7 @@ namespace nonogram
         private readonly List<int> puzzleIds = new(); // store IDs from DB
         public readonly List<(int time, int moves)> stats = new();
 
-        // ✅ Load 5 pre-generated puzzles from database
+        // Load 5 pre-generated puzzles from database
         public void LoadSpeedrunPuzzles(int count)
         {
             puzzles.Clear();
@@ -42,7 +42,7 @@ namespace nonogram
             }
         }
 
-        // ✅ Single clear method — returns both ID and grid
+        //Single clear method — returns both ID and grid
         public (int id, int[,] grid) GetCurrentPuzzle()
         {
             return (puzzleIds[CurrentIndex], puzzles[CurrentIndex]);
@@ -63,32 +63,35 @@ namespace nonogram
             return false;
         }
 
+        //saves results to DB
         public void SaveResults(int userId)
         {
             using var conn = DatabaseHelper.GetConnection();
-            for (int i = 0; i < stats.Count; i++)
-            {
-                var cmd = new MySqlCommand(
-                    "INSERT INTO speedrun_results (user_id, puzzle_id, puzzle_index, time_taken, moves) " +
-                    "VALUES (@uid, @pid, @idx, @time, @moves)",
-                    conn
-                );
+            string jsonSeeds = JsonSerializer.Serialize(puzzleIds);
 
-                cmd.Parameters.AddWithValue("@uid", userId);
-                cmd.Parameters.AddWithValue("@pid", puzzleIds[i]);
-                cmd.Parameters.AddWithValue("@idx", i + 1);
-                cmd.Parameters.AddWithValue("@time", stats[i].time);
-                cmd.Parameters.AddWithValue("@moves", stats[i].moves);
-                cmd.ExecuteNonQuery();
-            }
+            var cmd = new MySqlCommand(
+                "INSERT INTO leaderboard_speedrun (userId, total_time, average_time_per_puzzle, total_moves_count, puzzles_seeds, grid_size) " +
+                "VALUES (@uid, @time, @avg, @moves, @seeds, 5)",
+                conn
+            );
+
+            cmd.Parameters.AddWithValue("@uid", userId);
+            cmd.Parameters.AddWithValue("@time", TotalTime);
+            cmd.Parameters.AddWithValue("@avg", (double)TotalTime / stats.Count);
+            cmd.Parameters.AddWithValue("@moves", TotalMoves);
+            cmd.Parameters.AddWithValue("@seeds", jsonSeeds);
+
+            cmd.ExecuteNonQuery();
         }
+
+        //resets
         public void Reset()
         {
             CurrentIndex = 0;
             stats.Clear();
         }
 
-
+        //gets total time and moves
         public int TotalMoves
         {
             get { int total = 0; foreach (var s in stats) total += s.moves; return total; }

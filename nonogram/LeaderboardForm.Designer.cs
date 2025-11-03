@@ -30,6 +30,7 @@
         {
             dataGridViewPreGenerated = new DataGridView();
             dataGridViewSpeedrun = new DataGridView();
+            label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridViewPreGenerated).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewSpeedrun).BeginInit();
             SuspendLayout();
@@ -45,13 +46,22 @@
             // 
             // dataGridViewSpeedrun
             // 
-        
             dataGridViewSpeedrun.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewSpeedrun.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewSpeedrun.Location = new Point(444, 80);
             dataGridViewSpeedrun.Name = "dataGridViewSpeedrun";
             dataGridViewSpeedrun.Size = new Size(240, 150);
             dataGridViewSpeedrun.TabIndex = 1;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(142, 39);
+            label1.Name = "label1";
+            label1.Size = new Size(38, 15);
+            label1.TabIndex = 2;
+            label1.Text = "label1";
+            label1.Click += label1_Click;
             // 
             // LeaderboardForm
             // 
@@ -60,6 +70,7 @@
             AutoSize = true;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             ClientSize = new Size(800, 450);
+            Controls.Add(label1);
             Controls.Add(dataGridViewSpeedrun);
             Controls.Add(dataGridViewPreGenerated);
             Name = "LeaderboardForm";
@@ -67,11 +78,13 @@
             ((System.ComponentModel.ISupportInitialize)dataGridViewPreGenerated).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewSpeedrun).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private DataGridView dataGridViewPreGenerated;
         private DataGridView dataGridViewSpeedrun;
+        private Label label1;
     }
 }

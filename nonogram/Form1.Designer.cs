@@ -65,6 +65,7 @@
             label12 = new Label();
             panel13.SuspendLayout();
             SuspendLayout();
+            btnLeaderboard.Click += btnShowLeaderboard_Click;
             // 
             // timer1
             // 
