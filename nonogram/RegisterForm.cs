@@ -8,6 +8,7 @@ namespace nonogram
         public RegisterForm()
         {
             InitializeComponent();
+            AppTheme.ApplyTheme(this);
         }
 
         private void btnRegister_Click(object sender, EventArgs e)

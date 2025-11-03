@@ -22,23 +22,29 @@ namespace nonogram
 
         private void LoadUserData()
         {
+            AppTheme.ApplyTheme(this);
             // Laad user data
             username.Text = _currentUser.Username;
             email.Text = _currentUser.Email;
 
-            // Laad settings - gebruik de methodes die we hebben toegevoegd
             try
             {
                 var settings = UserService.GetUserSettings(_currentUser.UserId);
-                theme.Text = settings.theme;
+                chkDarkMode.Checked = settings.theme == "dark";
                 grid_size.Text = settings.gridSize.ToString();
+
+                // Pas het thema direct toe
+                AppTheme.IsDarkMode = chkDarkMode.Checked;
+                AppTheme.ApplyThemeToAllOpenForms();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Fout bij laden instellingen: {ex.Message}");
-                // Default values
-                theme.Text = "light";
+                chkDarkMode.Checked = false;
                 grid_size.Text = "10";
+
+                AppTheme.IsDarkMode = false;
+                AppTheme.ApplyThemeToAllOpenForms();
             }
         }
 
@@ -93,7 +99,7 @@ namespace nonogram
                 {
                     bool settingsUpdated = UserService.UpdateUserSettings(
                         _currentUser.UserId,
-                        theme.Text,
+                        chkDarkMode.Checked ? "dark" : "light",
                         int.Parse(grid_size.Text)
                     );
                     changesMade = changesMade || settingsUpdated;
@@ -169,5 +175,12 @@ namespace nonogram
             // Toon wachtwoord velden
             TogglePasswordFields(true);
         }
+
+        private void chkDarkMode_CheckedChanged(object sender, EventArgs e)
+        {
+            AppTheme.IsDarkMode = chkDarkMode.Checked;
+            AppTheme.ApplyThemeToAllOpenForms();
+        }
+
     }
 }
