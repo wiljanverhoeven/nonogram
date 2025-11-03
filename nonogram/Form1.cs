@@ -125,13 +125,29 @@ namespace nonogram
 
             if (e.Button == MouseButtons.Left)
             {
+                // Toggle fill
                 btn.BackColor = btn.BackColor == Color.Black ? Color.White : Color.Black;
                 btn.Text = "";
-
-                if (CheckWin())
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                // Toggle cross mark
+                if (btn.Text == "X")
                 {
-                    // handled inside CheckWin
+                    btn.Text = "";
+                    btn.ForeColor = Color.Black;
                 }
+                else
+                {
+                    btn.Text = "X";
+                    btn.ForeColor = Color.Red;
+                    btn.BackColor = Color.White; // ensure it's not filled
+                }
+            }
+
+            if (CheckWin())
+            {
+                // handled inside CheckWin
             }
         }
 
