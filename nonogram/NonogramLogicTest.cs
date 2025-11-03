@@ -1,7 +1,6 @@
 ﻿using Xunit;
 using nonogram;
 
-
 namespace nonogram.Tests
 {
     public class NonogramLogicTests
@@ -13,35 +12,47 @@ namespace nonogram.Tests
         {
             int[,] grid = _logic.GenerateRandomSolution(5, 5);
 
-            // Each row has at least one filled
             for (int r = 0; r < 5; r++)
-            {
-                int[] row = _logic.GetRow(grid, r);
-                Assert.Contains(1, row);
-            }
+                Assert.Contains(1, _logic.GetRow(grid, r));
 
-            // Each column has at least one filled
             for (int c = 0; c < 5; c++)
-            {
-                int[] col = _logic.GetColumn(grid, c);
-                Assert.Contains(1, col);
-            }
+                Assert.Contains(1, _logic.GetColumn(grid, c));
+        }
+
+        [Fact]
+        public void GetRow_ReturnsCorrectRow()
+        {
+            int[,] grid = {
+                {1,0,1},
+                {0,1,0},
+                {1,1,1}
+            };
+            Assert.Equal(new[] { 0, 1, 0 }, _logic.GetRow(grid, 1));
+        }
+
+        [Fact]
+        public void GetColumn_ReturnsCorrectColumn()
+        {
+            int[,] grid = {
+                {1,0,1},
+                {0,1,0},
+                {1,1,1}
+            };
+            Assert.Equal(new[] { 1, 0, 1 }, _logic.GetColumn(grid, 2));
         }
 
         [Fact]
         public void GenerateClueForLine_ReturnsCorrectClues()
         {
             int[] line = { 1, 1, 0, 1, 0, 1, 1, 1 };
-            string result = _logic.GenerateClueForLine(line);
-            Assert.Equal("2-1-3", result);
+            Assert.Equal("2-1-3", _logic.GenerateClueForLine(line));
         }
 
         [Fact]
         public void GenerateClueForLine_ReturnsZero_WhenNoFilledCells()
         {
             int[] line = { 0, 0, 0, 0, 0 };
-            string result = _logic.GenerateClueForLine(line);
-            Assert.Equal("0", result);
+            Assert.Equal("0", _logic.GenerateClueForLine(line));
         }
     }
 }
