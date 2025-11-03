@@ -17,10 +17,14 @@ namespace nonogram
         private int currentPuzzleId = -1;
         private SpeedrunManager speedrun;
 
+        // Voeg deze property toe
+        private User _currentUser;
+
         public Form1()
         {
             InitializeComponent();
         }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             logic = new NonogramLogic();
@@ -31,8 +35,30 @@ namespace nonogram
             button3.Enabled = false;
             label2.Text = "Time: 00:00";
             tableLayoutPanel1.Enabled = false;
+
+            // Laad de huidige gebruiker (tijdelijk hardcoded)
+            _currentUser = LoadCurrentUser();
         }
 
+        private User LoadCurrentUser()
+        {
+            // Tijdelijke oplossing - vervang dit later met echte login
+            try
+            {
+                // Probeer gebruiker met ID 1 te laden
+                return UserService.GetUserById(1);
+            }
+            catch
+            {
+                // Fallback: maak een dummy user aan
+                return new User
+                {
+                    UserId = 1,
+                    Username = "Guest",
+                    Email = "guest@example.com"
+                };
+            }
+        }
 
         private void StartGame()
         {
@@ -145,7 +171,6 @@ namespace nonogram
             return true;
         }
 
-
         private void button1_Click(object sender, EventArgs e)
         {
             string selectedMode = combomode.SelectedItem?.ToString() ?? "Random";
@@ -184,8 +209,6 @@ namespace nonogram
                 return;
             }
 
-
-
             elapsedSeconds = 0;
             label2.Text = "Time: 00:00";
             timer1.Stop();
@@ -196,8 +219,6 @@ namespace nonogram
             button1.Enabled = false;
             button3.Enabled = false;
         }
-
-
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -226,7 +247,6 @@ namespace nonogram
             button2.Enabled = false;
         }
 
-
         private void button3_Click(object sender, EventArgs e)
         {
             if (timer1.Enabled)
@@ -244,7 +264,6 @@ namespace nonogram
                 button3.Text = "Pause";
             }
         }
-
 
         private void StartPreGeneratedGame()
         {
@@ -309,7 +328,6 @@ namespace nonogram
             }
         }
 
-
         private void BuildGrid(int rows, int cols)
         {
             gridButtons = new Button[rows, cols];
@@ -373,11 +391,9 @@ namespace nonogram
             button3.Enabled = true;   // Pause/Resume
             button3.Text = "Pause";   // Make sure button says Pause
 
-            timer1.Start();            // Start global timer
+            timer1.Start();
             LoadSpeedrunPuzzle();
-
         }
-
 
         private void LoadSpeedrunPuzzle()
         {
@@ -396,8 +412,6 @@ namespace nonogram
             moveCount = 0;
         }
 
-
-
         private void OnSpeedrunPuzzleCompleted()
         {
             int puzzleTime = speedrun.stats.Count == 0
@@ -411,10 +425,9 @@ namespace nonogram
                 MessageBox.Show("Puzzle completed! Loading next...");
                 LoadSpeedrunPuzzle();
 
-                // Ensure buttons remain usable and grid active
                 tableLayoutPanel1.Enabled = true;
-                button1.Enabled = true;   // reset
-                button3.Enabled = true;   // pause/resume
+                button1.Enabled = true;
+                button3.Enabled = true;
             }
             else
             {
@@ -431,9 +444,6 @@ namespace nonogram
             leaderboardForm.ShowDialog();
         }
 
-
-
-
         private void ResetGameUI()
         {
             tableLayoutPanel1.Enabled = false;
@@ -442,6 +452,18 @@ namespace nonogram
             button3.Enabled = false;
             label1.Text = "Select Mode";
             label2.Text = "Time: 00:00";
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (_currentUser == null)
+            {
+                MessageBox.Show("Er is geen gebruiker geladen. Probeer opnieuw in te loggen.");
+                return;
+            }
+
+            var settingsForm = new Settings(_currentUser);
+            settingsForm.ShowDialog();
         }
     }
 }

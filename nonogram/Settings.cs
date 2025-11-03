@@ -16,6 +16,10 @@ namespace nonogram
             TogglePasswordFields(false);
         }
 
+        public Settings()
+        {
+        }
+
         private void LoadUserData()
         {
             // Laad user data
