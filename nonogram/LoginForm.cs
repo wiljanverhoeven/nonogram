@@ -8,6 +8,7 @@ namespace nonogram
         public LoginForm()
         {
             InitializeComponent();
+            AppTheme.ApplyTheme(this);
         }
 
         private void btnLogin_Click(object sender, EventArgs e)

@@ -35,6 +35,7 @@ namespace nonogram
 
         private void InitializeComponent()
         {
+            AppTheme.ApplyTheme(this);
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.ButtonSelect = new System.Windows.Forms.Button();
 

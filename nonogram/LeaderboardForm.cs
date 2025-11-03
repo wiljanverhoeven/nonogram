@@ -9,6 +9,7 @@ namespace nonogram
         {
             InitializeComponent();
             LoadLeaderboards();
+            AppTheme.ApplyTheme(this);
         }
 
         private void LoadLeaderboards()
