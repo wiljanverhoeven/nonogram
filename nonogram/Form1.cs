@@ -120,40 +120,71 @@ namespace nonogram
                 }
             }
 
-            timer1.Stop();
             string selectedMode = combomode.SelectedItem?.ToString() ?? "Random";
 
-            if (selectedMode == "Pre-generated")
-            {
-                SavePreGeneratedScore(userId, currentPuzzleId, elapsedSeconds, moveCount);
-                MessageBox.Show($"Congratulations! You solved the puzzle in {label2.Text.Replace("Time: ", "")}!");
-            }
-            else if (selectedMode == "Speedrun")
+            if (selectedMode == "Speedrun")
             {
                 OnSpeedrunPuzzleCompleted();
             }
             else
             {
-                MessageBox.Show($"Congratulations! You solved the puzzle in {label2.Text.Replace("Time: ", "")}!");
+                // Only stop timer for normal and pre-generated modes
+                timer1.Stop();
+
+                if (selectedMode == "Pre-generated")
+                {
+                    SavePreGeneratedScore(userId, currentPuzzleId, elapsedSeconds, moveCount);
+                    MessageBox.Show($"Congratulations! You solved the puzzle in {label2.Text.Replace("Time: ", "")}!");
+                }
+                else
+                {
+                    MessageBox.Show($"Congratulations! You solved the puzzle in {label2.Text.Replace("Time: ", "")}!");
+                }
             }
 
             return true;
         }
 
+
         private void button1_Click(object sender, EventArgs e)
         {
+            string selectedMode = combomode.SelectedItem?.ToString() ?? "Random";
+
             int rows = gridButtons.GetLength(0);
             int cols = gridButtons.GetLength(1);
 
+            // Clear all grid cells
             for (int r = 0; r < rows; r++)
             {
                 for (int c = 0; c < cols; c++)
                 {
                     gridButtons[r, c].BackColor = Color.White;
                     gridButtons[r, c].Text = "";
-                    gridButtons[r, c].Enabled = false;
                 }
             }
+
+            moveCount = 0;
+
+            if (selectedMode == "Speedrun")
+            {
+                // Reset timer to 0 but don't start it
+                elapsedSeconds = 0;
+                label2.Text = "Time: 00:00";
+                timer1.Stop();
+
+                // Reset progress and reload first puzzle
+                speedrun.Reset();
+                LoadSpeedrunPuzzle();
+
+                tableLayoutPanel1.Enabled = false; // disable board until "Start" pressed
+                button2.Enabled = true;            // enable Start button
+                button3.Text = "Pause";
+                button1.Enabled = false;           // disable Reset until game started
+                button3.Enabled = false;           // disable Pause until game started
+                return;
+            }
+
+
 
             elapsedSeconds = 0;
             label2.Text = "Time: 00:00";
@@ -165,6 +196,8 @@ namespace nonogram
             button1.Enabled = false;
             button3.Enabled = false;
         }
+
+
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -198,32 +231,44 @@ namespace nonogram
         {
             if (timer1.Enabled)
             {
+                // Pause
                 timer1.Stop();
+                tableLayoutPanel1.Enabled = false;
                 button3.Text = "Resume";
             }
             else
             {
+                // Resume
                 timer1.Start();
+                tableLayoutPanel1.Enabled = true;
                 button3.Text = "Pause";
             }
         }
 
+
         private void StartPreGeneratedGame()
         {
+            using (var selectionForm = new PuzzleSelectionForm())
+            {
+                if (selectionForm.ShowDialog() != DialogResult.OK)
+                    return; // user canceled
+
+                currentPuzzleId = selectionForm.SelectedPuzzleId;
+            }
+
             using (var conn = DatabaseHelper.GetConnection())
             {
-                string query = "SELECT * FROM pre_generated_puzzles ORDER BY RAND() LIMIT 1";
+                string query = "SELECT * FROM pre_generated_puzzles WHERE puzzleId = @id";
                 MySqlCommand cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", currentPuzzleId);
 
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        currentPuzzleId = reader.GetInt32("puzzleId"); // ✅ correct column name
                         string name = reader.GetString("name");
                         int gridSize = reader.GetInt32("grid_size");
 
-                        // Deserialize the jagged array and convert it to a 2D array
                         string solutionJson = reader.GetString("solution_data");
                         int[][] jagged = JsonSerializer.Deserialize<int[][]>(solutionJson);
 
@@ -239,14 +284,12 @@ namespace nonogram
 
                         BuildGrid(gridSize, gridSize);
 
-                        // Deserialize row & column hints as string arrays (or int[][] if stored numerically)
                         string rowHintsJson = reader.GetString("row_hints");
                         string colHintsJson = reader.GetString("column_hints");
 
                         int[][] rowHints = JsonSerializer.Deserialize<int[][]>(rowHintsJson);
                         int[][] columnHints = JsonSerializer.Deserialize<int[][]>(colHintsJson);
 
-                        // Convert numeric hints to string form like "1 2" or "5"
                         for (int i = 0; i < rowHints.Length && i < 5; i++)
                         {
                             string hintText = rowHints[i].Length > 0 ? string.Join(" ", rowHints[i]) : "0";
@@ -320,15 +363,27 @@ namespace nonogram
         private void StartSpeedrunMode()
         {
             speedrun = new SpeedrunManager();
-            speedrun.LoadSpeedrunPuzzles(3); // Load 3 random puzzles
+            speedrun.LoadSpeedrunPuzzles(5); // Load 5 pre-generated puzzles from DB
+
+            elapsedSeconds = 0;
+            label2.Text = "Time: 00:00";
+            timer1.Interval = 1000;
+
+            button1.Enabled = true;   // Reset
+            button3.Enabled = true;   // Pause/Resume
+            button3.Text = "Pause";   // Make sure button says Pause
+
+            timer1.Start();            // Start global timer
             LoadSpeedrunPuzzle();
+
         }
+
 
         private void LoadSpeedrunPuzzle()
         {
             var (puzzleId, grid) = speedrun.GetCurrentPuzzle();
             solution = grid;
-            label1.Text = $"Speedrun Puzzle {speedrun.CurrentIndex + 1}";
+            label1.Text = $"Speedrun Puzzle {speedrun.CurrentIndex + 1} of {5}";
 
             BuildGrid(grid.GetLength(0), grid.GetLength(1));
 
@@ -339,26 +394,45 @@ namespace nonogram
                 SetColumnLabel(8 + c, logic.GenerateClueForLine(logic.GetColumn(grid, c)));
 
             moveCount = 0;
-            StartTimer();
         }
+
+
 
         private void OnSpeedrunPuzzleCompleted()
         {
-            speedrun.AddStats(elapsedSeconds, moveCount);
-            timer1.Stop();
+            int puzzleTime = speedrun.stats.Count == 0
+                ? elapsedSeconds
+                : elapsedSeconds - speedrun.TotalTime;
+
+            speedrun.AddStats(puzzleTime, moveCount);
 
             if (speedrun.NextPuzzle())
             {
                 MessageBox.Show("Puzzle completed! Loading next...");
                 LoadSpeedrunPuzzle();
+
+                // Ensure buttons remain usable and grid active
+                tableLayoutPanel1.Enabled = true;
+                button1.Enabled = true;   // reset
+                button3.Enabled = true;   // pause/resume
             }
             else
             {
+                timer1.Stop();
                 speedrun.SaveResults(userId);
-                MessageBox.Show($"Speedrun complete!\nTotal time: {speedrun.TotalTime} seconds\nTotal moves: {speedrun.TotalMoves}");
+                MessageBox.Show($"🏁 Speedrun complete!\nTotal time: {elapsedSeconds} seconds\nTotal moves: {speedrun.TotalMoves}");
                 ResetGameUI();
             }
         }
+
+        private void btnShowLeaderboard_Click(object sender, EventArgs e)
+        {
+            LeaderboardForm leaderboardForm = new LeaderboardForm();
+            leaderboardForm.ShowDialog();
+        }
+
+
+
 
         private void ResetGameUI()
         {

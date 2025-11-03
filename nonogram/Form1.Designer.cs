@@ -46,6 +46,7 @@
             panel11 = new Panel();
             panel12 = new Panel();
             panel13 = new Panel();
+            btnLeaderboard = new Button();
             button2 = new Button();
             label2 = new Label();
             label1 = new Label();
@@ -64,6 +65,7 @@
             label12 = new Label();
             panel13.SuspendLayout();
             SuspendLayout();
+            btnLeaderboard.Click += btnShowLeaderboard_Click;
             // 
             // timer1
             // 
@@ -202,6 +204,7 @@
             // 
             panel13.BackColor = SystemColors.ActiveCaption;
             panel13.BorderStyle = BorderStyle.FixedSingle;
+            panel13.Controls.Add(btnLeaderboard);
             panel13.Controls.Add(button2);
             panel13.Controls.Add(label2);
             panel13.Controls.Add(label1);
@@ -212,6 +215,15 @@
             panel13.Name = "panel13";
             panel13.Size = new Size(158, 340);
             panel13.TabIndex = 13;
+            // 
+            // btnLeaderboard
+            // 
+            btnLeaderboard.Location = new Point(41, 269);
+            btnLeaderboard.Name = "btnLeaderboard";
+            btnLeaderboard.Size = new Size(75, 23);
+            btnLeaderboard.TabIndex = 6;
+            btnLeaderboard.Text = "scoreboard";
+            btnLeaderboard.UseVisualStyleBackColor = true;
             // 
             // button2
             // 
@@ -423,6 +435,7 @@
         private Label label11;
         private Label label12;
         private ComboBox combomode;
+        private Button btnLeaderboard;
     }
 
 }
