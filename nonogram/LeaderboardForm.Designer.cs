@@ -38,19 +38,31 @@
             // 
             // dataGridViewPreGenerated
             // 
+            dataGridViewPreGenerated.AllowUserToAddRows = false;
+            dataGridViewPreGenerated.AllowUserToDeleteRows = false;
+            dataGridViewPreGenerated.AllowUserToResizeColumns = false;
+            dataGridViewPreGenerated.AllowUserToResizeRows = false;
             dataGridViewPreGenerated.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewPreGenerated.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewPreGenerated.Location = new Point(30, 30);
             dataGridViewPreGenerated.Name = "dataGridViewPreGenerated";
+            dataGridViewPreGenerated.ReadOnly = true;
+            dataGridViewPreGenerated.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             dataGridViewPreGenerated.Size = new Size(240, 150);
             dataGridViewPreGenerated.TabIndex = 0;
             // 
             // dataGridViewSpeedrun
             // 
+            dataGridViewSpeedrun.AllowUserToAddRows = false;
+            dataGridViewSpeedrun.AllowUserToDeleteRows = false;
+            dataGridViewSpeedrun.AllowUserToResizeColumns = false;
+            dataGridViewSpeedrun.AllowUserToResizeRows = false;
             dataGridViewSpeedrun.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewSpeedrun.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewSpeedrun.Location = new Point(300, 30);
             dataGridViewSpeedrun.Name = "dataGridViewSpeedrun";
+            dataGridViewSpeedrun.ReadOnly = true;
+            dataGridViewSpeedrun.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             dataGridViewSpeedrun.Size = new Size(240, 150);
             dataGridViewSpeedrun.TabIndex = 1;
             // 
