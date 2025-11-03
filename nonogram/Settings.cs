@@ -52,16 +52,13 @@ namespace nonogram
         {
             _showPasswordFields = show;
 
-            // Toon/verberg wachtwoord velden
             lblCurrentPassword.Visible = show;
             txtCurrentPassword.Visible = show;
             lblNewPassword.Visible = show;
             txtNewPassword.Visible = show;
 
-            // Pas de hoogte van het form aan
             this.Height = show ? 520 : 450;
 
-            // Verplaats de save knop naar beneden
             save.Location = new System.Drawing.Point(save.Location.X, show ? 420 : 344);
         }
 
@@ -71,7 +68,6 @@ namespace nonogram
             {
                 bool changesMade = false;
 
-                // Update profile (username en email)
                 if (username.Text != _currentUser.Username || email.Text != _currentUser.Email)
                 {
                     bool profileUpdated = UserService.UpdateUserProfile(
@@ -94,7 +90,6 @@ namespace nonogram
                     }
                 }
 
-                // Update settings
                 try
                 {
                     bool settingsUpdated = UserService.UpdateUserSettings(
@@ -111,7 +106,6 @@ namespace nonogram
                     return;
                 }
 
-                // Update password als velden zichtbaar zijn en ingevuld
                 if (_showPasswordFields && !string.IsNullOrWhiteSpace(txtCurrentPassword.Text))
                 {
                     if (string.IsNullOrWhiteSpace(txtNewPassword.Text))
@@ -121,7 +115,7 @@ namespace nonogram
                         return;
                     }
 
-                    if (txtNewPassword.Text.Length < 4)
+                    if (txtNewPassword.Text.Length < 6)
                     {
                         MessageBox.Show("Nieuw wachtwoord moet minimaal 4 karakters zijn!", "Fout",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -137,10 +131,9 @@ namespace nonogram
                     if (passwordUpdated)
                     {
                         changesMade = true;
-                        // Reset wachtwoord velden
                         txtCurrentPassword.Text = "";
                         txtNewPassword.Text = "";
-                        TogglePasswordFields(false); // Verberg weer
+                        TogglePasswordFields(false);
                         MessageBox.Show("Wachtwoord succesvol gewijzigd!", "Succes",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -172,7 +165,6 @@ namespace nonogram
 
         private void change_password_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            // Toon wachtwoord velden
             TogglePasswordFields(true);
         }
 
