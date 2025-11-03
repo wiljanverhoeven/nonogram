@@ -25,8 +25,12 @@ namespace nonogram
             InitializeComponent();
         }
 
+
         private void Form1_Load(object sender, EventArgs e)
         {
+            // Apply the saved theme (this will load from AppTheme itself)
+            AppTheme.ApplyTheme(this);
+
             logic = new NonogramLogic();
             combomode.Items.Clear();
             combomode.Items.AddRange(new string[] { "Random", "Pre-generated", "Speedrun" });
@@ -36,7 +40,7 @@ namespace nonogram
             label2.Text = "Time: 00:00";
             tableLayoutPanel1.Enabled = false;
 
-            // Laad de huidige gebruiker (tijdelijk hardcoded)
+            // Load user
             _currentUser = LoadCurrentUser();
         }
 
@@ -376,8 +380,6 @@ namespace nonogram
             }
         }
 
-        // --- SPEEDRUN MODE LOGIC BELOW ---
-
         private void StartSpeedrunMode()
         {
             speedrun = new SpeedrunManager();
@@ -458,12 +460,15 @@ namespace nonogram
         {
             if (_currentUser == null)
             {
-                MessageBox.Show("Er is geen gebruiker geladen. Probeer opnieuw in te loggen.");
+                MessageBox.Show("log in to use");
                 return;
             }
 
             var settingsForm = new Settings(_currentUser);
             settingsForm.ShowDialog();
+
+            // Reapply theme immediately when returning from settings
+            AppTheme.ApplyTheme(this);
         }
     }
 }
