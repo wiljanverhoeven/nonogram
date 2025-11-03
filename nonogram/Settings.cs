@@ -16,10 +16,6 @@ namespace nonogram
             TogglePasswordFields(false);
         }
 
-        public Settings()
-        {
-        }
-
         private void LoadUserData()
         {
             username.Text = _currentUser.Username;

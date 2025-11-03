@@ -54,23 +54,37 @@ namespace nonogram
 
         public static User GetUser(string username)
         {
-            string query = "SELECT userId, username, email FROM user WHERE username = @username";
-            var parameter = new MySqlParameter("@username", username);
-
-            var result = _db.ExecuteQuery(query, parameter);
-
-            if (result.Rows.Count > 0)
+            try
             {
-                var row = result.Rows[0];
-                return new User
-                {
-                    UserId = Convert.ToInt32(row["userId"]),
-                    Username = row["username"].ToString(),
-                    Email = row["email"].ToString()
-                };
-            }
+                //MessageBox.Show($"DEBUG: GetUser called for username: {username}");
 
-            return null;
+                string query = "SELECT userId, username, email FROM user WHERE username = @username";
+                var parameter = new MySqlParameter("@username", username);
+
+                var result = _db.ExecuteQuery(query, parameter);
+
+                if (result.Rows.Count > 0)
+                {
+                    var row = result.Rows[0];
+                    var user = new User
+                    {
+                        UserId = Convert.ToInt32(row["userId"]),
+                        Username = row["username"].ToString(),
+                        Email = row["email"].ToString()
+                    };
+
+                    //MessageBox.Show($"DEBUG: GetUser found - UserId: {user.UserId}, Username: {user.Username}");
+                    return user;
+                }
+
+                //MessageBox.Show($"DEBUG: GetUser - no user found for username: {username}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show($"DEBUG: GetUser error: {ex.Message}");
+                return null;
+            }
         }
 
         private static string HashPassword(string plainPassword)
@@ -275,9 +289,37 @@ namespace nonogram
             } 
         }
 
-        internal static User LoginUser(string username, string password)
+        public static User LoginUser(string username, string password)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string query = "SELECT userId, username, email, password FROM user WHERE username = @username";
+                var parameter = new MySqlParameter("@username", username);
+
+                var result = _db.ExecuteQuery(query, parameter);
+
+                if (result.Rows.Count > 0)
+                {
+                    var row = result.Rows[0];
+                    string storedHash = row["password"].ToString();
+
+                    if (VerifyPassword(password, storedHash))
+                    {
+                        return new User
+                        {
+                            UserId = Convert.ToInt32(row["userId"]),
+                            Username = row["username"].ToString(),
+                            Email = row["email"].ToString()
+                        };
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Login error: {ex.Message}");
+                return null;
+            }
         }
     }
 }

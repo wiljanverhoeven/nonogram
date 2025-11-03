@@ -10,11 +10,6 @@ namespace nonogram
             InitializeComponent();
         }
 
-        private void btnRegister_Click(object sender, EventArgs e)
-        {
-            
-        }
-
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             this.Close();
@@ -23,8 +18,8 @@ namespace nonogram
         private void btnRegister_Click_1(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
-            string password = txtConfirmPassword.Text;
-            string confirmPassword = txtPassword.Text;
+            string password = txtPassword.Text;
+            string confirmPassword = txtConfirmPassword.Text;
             string email = txtEmail.Text.Trim();
 
             // Validation
@@ -47,11 +42,28 @@ namespace nonogram
                 return;
             }
 
+            //MessageBox.Show($"DEBUG: Attempting registration for user: {username}");
+
             // Attempt registration
             if (UserService.Register(username, password, email))
             {
-                MessageBox.Show("Registration successful! You can now login.");
-                this.Close(); // Close the registration form
+                //MessageBox.Show($"DEBUG: Registration successful for: {username}");
+
+                User user = UserService.GetUser(username);
+                if (user != null)
+                {
+                    //MessageBox.Show($"DEBUG: Retrieved user from DB - UserId: {user.UserId}");
+
+                    UserSession.Login(user);
+                    MessageBox.Show($"Registration successful! Welcome {username}!");
+
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Error: Could not retrieve user after registration.");
+                }
             }
             else
             {

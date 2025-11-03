@@ -17,14 +17,12 @@ namespace nonogram
         private int currentPuzzleId = -1;
         private SpeedrunManager speedrun;
 
-        // Voeg deze property toe
         private User _currentUser;
 
         public Form1()
         {
             InitializeComponent();
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             logic = new NonogramLogic();
@@ -35,29 +33,14 @@ namespace nonogram
             button3.Enabled = false;
             label2.Text = "Time: 00:00";
             tableLayoutPanel1.Enabled = false;
+            _currentUser = UserSession.CurrentUser;
 
-            // Laad de huidige gebruiker (tijdelijk hardcoded)
-            _currentUser = LoadCurrentUser();
-        }
+            if (_currentUser != null)
+            {
+                userId = _currentUser.UserId;
+            }
 
-        private User LoadCurrentUser()
-        {
-            // Tijdelijke oplossing - vervang dit later met echte login
-            try
-            {
-                // Probeer gebruiker met ID 1 te laden
-                return UserService.GetUserById(1);
-            }
-            catch
-            {
-                // Fallback: maak een dummy user aan
-                return new User
-                {
-                    UserId = 1,
-                    Username = "Guest",
-                    Email = "guest@example.com"
-                };
-            }
+            //MessageBox.Show($"DEBUG Form1: UserId = {userId}, Username = {_currentUser?.Username}");
         }
 
         private void StartGame()
@@ -391,7 +374,7 @@ namespace nonogram
             button3.Enabled = true;   // Pause/Resume
             button3.Text = "Pause";   // Make sure button says Pause
 
-            timer1.Start();
+            timer1.Start();            // Start global timer
             LoadSpeedrunPuzzle();
         }
 
@@ -456,14 +439,17 @@ namespace nonogram
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if (_currentUser == null)
+            if (!UserSession.IsLoggedIn)
             {
-                MessageBox.Show("Er is geen gebruiker geladen. Probeer opnieuw in te loggen.");
+                MessageBox.Show("Please log in to access settings.");
                 return;
             }
 
-            var settingsForm = new Settings(_currentUser);
+            //MessageBox.Show($"DEBUG: Opening Settings for UserId: {UserSession.CurrentUser.UserId}");
+            var settingsForm = new Settings(UserSession.CurrentUser);
             settingsForm.ShowDialog();
+
+            _currentUser = UserSession.CurrentUser;
         }
     }
 }
