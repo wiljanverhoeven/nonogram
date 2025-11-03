@@ -40,5 +40,20 @@ namespace nonogram
         {
 
         }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void LeaderboardForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridViewSpeedrun_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 }
