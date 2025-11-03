@@ -21,7 +21,6 @@ namespace nonogram
         {
             InitializeComponent();
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             logic = new NonogramLogic();

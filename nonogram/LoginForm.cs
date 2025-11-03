@@ -49,5 +49,11 @@ namespace nonogram
             this.Hide();
             registerForm.FormClosed += (s, args) => this.Show();
         }
+
+        // Add this property to expose the logged-in user
+        public string LoggedInUser
+        {
+            get { return CurrentUser; }
+        }
     }
 }

@@ -273,6 +273,11 @@ namespace nonogram
                 Console.WriteLine($"Get user by ID error: {ex.Message}");
                 return null;
             } 
-        } 
+        }
+
+        internal static User LoginUser(string username, string password)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
