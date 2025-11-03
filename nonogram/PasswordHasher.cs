@@ -9,7 +9,6 @@ public static class PasswordHasher
         if (string.IsNullOrWhiteSpace(plainPassword))
             throw new ArgumentException("Password cannot be empty");
 
-        // Fix: Use BCrypt.Net.BCrypt.HashPassword(plainPassword, WorkFactor)
         return BCrypt.Net.BCrypt.HashPassword(plainPassword, WorkFactor);
     }
 
